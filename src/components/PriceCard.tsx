@@ -14,7 +14,7 @@ export function PriceCard({
 	...props
 }: PriceCardProps) {
 	return (
-		<Card className="rounded-lg border p-4 max-w-80" {...props}>
+		<Card className="rounded-lg border p-4" {...props}>
 			<CardHeader>
 				<CardTitle>{title}</CardTitle>
 			</CardHeader>
