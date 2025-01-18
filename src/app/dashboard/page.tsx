@@ -13,8 +13,8 @@ export default function Home() {
 					<PriceChart className="w-full" />
 				</section>
 				<aside className="grid grid-cols-2 lg:grid-cols-1 gap-4 lg:w-80">
-					<PriceCard title="All Time High" price={12345.67} />
-					<PriceCard title="All Time Low" price={8234.56} />
+					<PriceCard title="Buy Price" price={12345.67} />
+					<PriceCard title="Sell Price" price={8234.56} />
 					<PriceCard title="Daily High" price={2345.67} />
 					<PriceCard title="Daily Low" price={567.89} />
 				</aside>

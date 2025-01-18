@@ -14,12 +14,19 @@ export function PriceCard({
 	...props
 }: PriceCardProps) {
 	return (
-		<Card className="rounded-lg border p-4" {...props}>
-			<CardHeader>
-				<CardTitle>{title}</CardTitle>
+		<Card
+			className="flex flex-col items-center lg:items-stretch rounded-lg border p-4 "
+			{...props}
+		>
+			<CardHeader className="p-0">
+				<CardTitle>
+					<h3 className="text-xl">{title}</h3>
+				</CardTitle>
 			</CardHeader>
-			<CardContent>
-				<div className="text-2xl font-bold">${price.toFixed(2)}</div>
+			<CardContent className="p-0 flex-1 flex flex-col items-center justify-center">
+				<div className="text-xl lg:text-4xl font-bold text-center">
+					${price.toFixed(2)}
+				</div>
 				{subtitle && (
 					<p className="text-xs text-muted-foreground">{subtitle}</p>
 				)}
