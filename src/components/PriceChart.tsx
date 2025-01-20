@@ -1,132 +1,213 @@
-"use client"
+"use client";
 
-import { Area, AreaChart, Bar, Brush, CartesianGrid, ComposedChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { useGoldPrice } from "@/hooks/useGoldPrice";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-} from "@/components/ui/chart"
-import { HTMLAttributes, useEffect, useState } from "react"
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig
-
-interface GoldPriceData {
-  timestamp: string;
-  price: number;
-  change: number;
-  volume: number;
-  high: number;
-  low: number;
-  open: number;
-  close: number;
-}
-
-
-type TimeRange = 'today' | '1w' | '1m' | '3m' | '6m' | '1y' | '5y' | 'all';
+	Area,
+	CartesianGrid,
+	ComposedChart,
+	ResponsiveContainer,
+	Tooltip,
+	XAxis,
+	YAxis,
+} from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { HTMLAttributes, useMemo, useState } from "react";
+import type { TimeRange } from "@/types/gold";
+import { Badge } from "./ui/badge";
 
 const timeRanges = [
-  { value: 'today', label: 'Today' },
-  { value: '1w', label: '1 Week' },
-  { value: '1m', label: '1 Month' },
-  { value: '3m', label: '3 Month' },
-  { value: '6m', label: '6 Month' },
-  { value: '1y', label: '1 Year' },
-  { value: '5y', label: '5 Year' },
-  { value: 'all', label: 'All Time' },
+	{ value: "today", label: "Today" },
+	{ value: "1w", label: "1 Week" },
+	{ value: "1m", label: "1 Month" },
+	{ value: "3m", label: "3 Month" },
+	{ value: "6m", label: "6 Month" },
+	{ value: "ytd", label: "YTD" },
+	{ value: "1y", label: "1 Year" },
+	{ value: "5y", label: "5 Year" },
+	{ value: "all", label: "All Time" },
 ] as const;
 
-const generateDummyData = (): GoldPriceData[] => {
-  const data: GoldPriceData[] = [];
-  const basePrice = 2740.34;
-  const baseVolume = 1000000;
-
-  const startDate = new Date();
-  startDate.setHours(0, 0, 0, 0);
-
-  for (let i = 0; i < 1440; i++) {
-    const time = new Date(startDate);
-    time.setMinutes(i);
-
-    const variation = (Math.random() - 0.5) * 30;
-    const price = basePrice + variation;
-    const volumeVariation = (Math.random() + 0.5) * baseVolume;
-
-    data.push({
-      timestamp: time.toISOString(),
-      price: Number(price.toFixed(2)),
-      change: Number((variation / basePrice * 100).toFixed(2)),
-      volume: Math.floor(volumeVariation),
-      high: Number((price + Math.random() * 5).toFixed(2)),
-      low: Number((price - Math.random() * 5).toFixed(2)),
-      open: Number((price - variation).toFixed(2)),
-      close: Number(price.toFixed(2))
-    });
-  }
-  return data;
-};
-
-const aggregateDataByMinutes = (data: GoldPriceData[], minutes: number): GoldPriceData[] => {
-  const result: GoldPriceData[] = [];
-
-  for (let i = 0; i < data.length; i += minutes) {
-    const chunk = data.slice(i, i + minutes);
-    const firstPrice = chunk[0].price;
-    const lastPrice = chunk[chunk.length - 1].price;
-
-    result.push({
-      timestamp: chunk[0].timestamp,
-      price: lastPrice,
-      change: ((lastPrice - firstPrice) / firstPrice) * 100,
-      volume: chunk.reduce((sum, d) => sum + d.volume, 0),
-      high: Math.max(...chunk.map(d => d.high)),
-      low: Math.min(...chunk.map(d => d.low)),
-      open: chunk[0].open,
-      close: chunk[chunk.length - 1].close
-    });
-  }
-  return result;
-};
-
-const dummyData = generateDummyData();
-
 export function PriceChart(props: HTMLAttributes<HTMLDivElement>) {
-  const [selectedRange, setSelectedRange] = useState<TimeRange>('today');
-  const [displayData, setDisplayData] = useState(dummyData);
+	const [selectedRange, setSelectedRange] = useState<TimeRange>("today");
+	const { data, loading, error } = useGoldPrice(selectedRange);
 
-  const endIndex = dummyData.length - 1;
-  const startIndex = Math.max(0, endIndex - (120));
+	const isMarketClosed = useMemo(() => {
+		const now = new Date();
+		const day = now.getDay();
+		return day === 0; // Sunday
+	}, []);
 
-  useEffect(() => {
-    switch(selectedRange) {
-      case 'today':
-        setDisplayData(dummyData);
-        break;
-      case '1w':
-        setDisplayData(aggregateDataByMinutes(dummyData, 15));
-        break;
-      case '1m':
-        setDisplayData(aggregateDataByMinutes(dummyData, 30));
-        break;
-      default:
-        setDisplayData(dummyData);
-    }
-  }, [selectedRange]);
+	if (loading) return <div>Loading...</div>;
+	if (error) return <div>Error loading data</div>;
+	if (!data?.length) return <div>No data available</div>;
 
-  return (
-    <Card {...props}>
-      <CardHeader>
+	return (
+		<Card {...props}>
+			<CardHeader>
+				<CardTitle className="flex items-center justify-between">
+					<div className="flex items-center gap-2">
+						<span>Gold Price Chart</span>
+						{isMarketClosed && (
+							<Badge
+								variant="secondary"
+								className="text-muted-foreground"
+							>
+								Market Closed
+							</Badge>
+						)}
+					</div>
+					<div className="flex gap-2">
+						{timeRanges.map((range) => (
+							<button
+								key={range.value}
+								onClick={() => setSelectedRange(range.value)}
+								className={`px-3 py-1 rounded-md ${
+									selectedRange === range.value
+										? "bg-primary text-primary-foreground"
+										: "bg-secondary hover:bg-secondary/80"
+								}`}
+							>
+								{range.label}
+							</button>
+						))}
+					</div>
+				</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<ResponsiveContainer width="100%" height={400}>
+					<ComposedChart data={data}>
+						<defs>
+							<linearGradient
+								id="colorPrice"
+								x1="0"
+								y1="0"
+								x2="0"
+								y2="1"
+							>
+								<stop
+									offset="5%"
+									stopColor="hsl(var(--primary))"
+									stopOpacity={0.8}
+								/>
+								<stop
+									offset="95%"
+									stopColor="hsl(var(--primary))"
+									stopOpacity={0}
+								/>
+							</linearGradient>
+						</defs>
+						<CartesianGrid strokeDasharray="3 3" />
+						<XAxis
+							dataKey="timestamp"
+							type="number"
+							domain={["dataMin", "dataMax"]}
+							scale="time"
+							tickFormatter={(unixTime) => {
+								const date = new Date(unixTime);
+								switch (selectedRange) {
+									case "today":
+										return date.toLocaleTimeString([], {
+											hour: "2-digit",
+											minute: "2-digit",
+										});
+									case "1w":
+										return date.toLocaleDateString([], {
+											weekday: "short",
+											hour: "2-digit",
+										});
+									case "1m":
+										return date.toLocaleDateString([], {
+											month: "short",
+											day: "numeric",
+										});
+									case "3m":
+									case "6m":
+										return date.toLocaleDateString([], {
+											month: "short",
+											day: "numeric",
+										});
+									case "1y":
+									case "5y":
+										return date.toLocaleDateString([], {
+											month: "short",
+											year: "2-digit",
+										});
+									default:
+										return date.toLocaleDateString();
+								}
+							}}
+							interval="preserveStartEnd"
+							minTickGap={50}
+						/>
+						<YAxis
+							yAxisId="price"
+							domain={["auto", "auto"]}
+							tickFormatter={(value) => `$${value.toFixed(2)}`}
+						/>
+						<Tooltip
+							content={({ active, payload }) => {
+								if (active && payload?.length) {
+									const data = payload[0].payload;
+									return (
+										<div className="rounded-lg bg-background p-2 shadow-md border">
+											<div className="font-medium">
+												${data.price.toFixed(2)}
+											</div>
+											<div
+												className={`text-sm ${
+													data.change >= 0
+														? "text-green-500"
+														: "text-red-500"
+												}`}
+											>
+												{data.change >= 0 ? "+" : ""}
+												{data.change.toFixed(2)}%
+											</div>
+											<div className="text-xs text-muted-foreground">
+												{selectedRange === "today"
+													? new Date(
+															data.timestamp
+													  ).toLocaleTimeString([], {
+															hour: "2-digit",
+															minute: "2-digit",
+															hour12: false,
+													  })
+													: new Date(
+															data.timestamp
+													  ).toLocaleDateString([], {
+															year: "numeric",
+															month: "short",
+															day: "numeric",
+															hour: "2-digit",
+															minute: "2-digit",
+															hour12: false,
+													  })}
+											</div>
+										</div>
+									);
+								}
+								return null;
+							}}
+						/>
+						<Area
+							yAxisId="price"
+							type="monotone"
+							dataKey="price"
+							stroke="hsl(var(--primary))"
+							fill="url(#colorPrice)"
+							fillOpacity={0.3}
+							isAnimationActive={false}
+						/>
+					</ComposedChart>
+				</ResponsiveContainer>
+				{isMarketClosed && (
+					<div className="mt-4 text-center text-sm text-muted-foreground">
+						Market is closed on Sundays. Showing last available
+						price data.
+					</div>
+				)}
+			</CardContent>
+			{/* <CardHeader>
         <CardTitle className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
             <svg width="56" height="56"
@@ -147,11 +228,10 @@ export function PriceChart(props: HTMLAttributes<HTMLDivElement>) {
         <CardDescription>
           Data Real-Time <time dateTime="2025-01-17T08:06:49.000Z" data-test="trading-time-label">15:06:49</time>
         </CardDescription>
-      </CardHeader>
-      <CardContent>
+      </CardHeader> */}
+			{/* <CardContent>
         <ChartContainer config={chartConfig}>
-          <ResponsiveContainer width="100%" height={400}>
-            <ComposedChart data={displayData}>
+            <ComposedChart data={data}>
               <defs>
                 <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
@@ -240,7 +320,6 @@ export function PriceChart(props: HTMLAttributes<HTMLDivElement>) {
                 }}
               />
             </ComposedChart>
-          </ResponsiveContainer>
         </ChartContainer>
         <div className="flex flex-wrap justify-center mt-4 gap-2">
           {timeRanges.map((range) => (
@@ -257,7 +336,7 @@ export function PriceChart(props: HTMLAttributes<HTMLDivElement>) {
             </button>
           ))}
         </div>
-      </CardContent>
-    </Card>
-  )
+      </CardContent> */}
+		</Card>
+	);
 }
