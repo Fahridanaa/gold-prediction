@@ -8,14 +8,14 @@ import {
 	SidebarHeader,
 	SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { CollapsibleSidebarMenuItem } from "./collapsible-menu-item";
-import { SidebarMenuItemComponent } from "./sidebar-menu-item-component";
+import { CollapsibleSidebarMenuItem } from "./CollapsibleSidebarMenuItem";
+import { SidebarMenuItemComponent } from "./SidebarMenuItemComponent";
 
 // Menu items.
 const items = [
 	{
 		title: "Home",
-		url: "/dashboard",
+		url: "/",
 		icon: Home,
 	},
 	{

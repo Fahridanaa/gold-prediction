@@ -66,7 +66,7 @@ export function CollapsibleSidebarMenuItem({
 												asChild
 												className={
 													isActive
-														? "bg-accent text-accent-foreground"
+														? "bg-primary text-primary-foreground"
 														: ""
 												}
 											>

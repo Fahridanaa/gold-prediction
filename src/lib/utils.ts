@@ -6,8 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function isActivePath(currentPath: string, itemPath: string) {
-	if (itemPath === "/dashboard" && currentPath === "/dashboard") {
+	if (itemPath === "/" && currentPath === "/") {
 		return true;
 	}
-	return currentPath.startsWith(itemPath) && itemPath !== "/dashboard";
+	return currentPath.startsWith(itemPath) && itemPath !== "/";
 }
