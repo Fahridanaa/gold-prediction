@@ -11,12 +11,11 @@ export function PriceCard({
 	title,
 	price,
 	subtitle,
-	...props
+	className,
 }: PriceCardProps) {
 	return (
 		<Card
-			className="flex flex-col items-center lg:items-stretch rounded-lg border p-4 "
-			{...props}
+			className={`flex flex-col items-center lg:items-stretch rounded-lg border p-4 ${className}`}
 		>
 			<CardHeader className="p-0">
 				<CardTitle>
@@ -24,7 +23,7 @@ export function PriceCard({
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="p-0 flex-1 flex flex-col items-center justify-center">
-				<div className="text-xl lg:text-4xl font-bold text-center">
+				<div className="text-xl lg:text-3xl font-bold text-center">
 					${price.toFixed(2)}
 				</div>
 				{subtitle && (
