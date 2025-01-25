@@ -7,7 +7,7 @@ import { GoldPriceChart } from "@/components/GoldPriceChart";
 import { useGoldStore } from "@/hooks/useGoldStore";
 
 export default function Dashboard() {
-	const { stats, isMarketOpen, loading } = useGoldStore();
+	const { stats, loading } = useGoldStore();
 	const { buyPrice, sellPrice, dailyHigh, dailyLow } = stats;
 
 	return (
@@ -25,7 +25,7 @@ export default function Dashboard() {
 				<aside className="grid grid-cols-2 lg:grid-cols-1 gap-4 lg:w-52">
 					<PriceCard
 						title="Buy Price"
-						price={isMarketOpen ? buyPrice : 0}
+						price={buyPrice}
 						subtitle={loading ? "Loading..." : undefined}
 					/>
 					<PriceCard
@@ -48,7 +48,7 @@ export default function Dashboard() {
 
 			<section className="mt-6 rounded-lg border">
 				<div className="overflow-x-auto">
-					<PriceHistoryTable />
+					<PriceHistoryTable/>
 				</div>
 			</section>
 		</main>

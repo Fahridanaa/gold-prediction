@@ -14,7 +14,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const ROWS_PER_PAGE = 10;
 
 export function PriceHistoryTable() {
-	const { dailyHistory, loading } = useGoldStore();
+	const { dailyHistory } = useGoldStore();
 	const [currentPage, setCurrentPage] = useState(1);
 
 	const totalPages = Math.ceil(dailyHistory.length / ROWS_PER_PAGE);
@@ -23,10 +23,6 @@ export function PriceHistoryTable() {
 		startIndex,
 		startIndex + ROWS_PER_PAGE
 	);
-
-	if (loading) {
-		return <div className="p-4 text-center">Loading...</div>;
-	}
 
 	return (
 		<div>
