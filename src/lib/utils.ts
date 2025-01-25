@@ -22,6 +22,16 @@ export function getStartDate(range: string): Date {
 			return new Date(now.setDate(now.getDate() - 7));
 		case "1m":
 			return new Date(now.setMonth(now.getMonth() - 1));
+		case "3m":
+			return new Date(now.setMonth(now.getMonth() - 3));
+		case "6m":
+			return new Date(now.setMonth(now.getMonth() - 6));
+		case "ytd":
+			return new Date(now.setMonth(0, 1));
+		case "1y":
+			return new Date(now.setFullYear(now.getFullYear() - 1));
+		case "5y":
+			return new Date(now.setFullYear(now.getFullYear() - 5));
 		default:
 			return new Date(now.setHours(0, 0, 0, 0));
 	}
@@ -42,6 +52,12 @@ export function getPredictionEndDate(range: TimeRange): string {
 			break;
 		case "6m":
 			now.setMonth(now.getMonth() + 6);
+			break;
+		case "1y":
+			now.setFullYear(now.getFullYear() + 1);
+			break;
+		case "5y":
+			now.setFullYear(now.getFullYear() + 5);
 			break;
 		default:
 			now.setDate(now.getDate() + 7);
@@ -65,6 +81,10 @@ export function getPredictionPeriodText(range: TimeRange): string {
 			return "3 Bulan";
 		case "6m":
 			return "6 Bulan";
+		case "1y":
+			return "1 Tahun";
+		case "5y":
+			return "5 Tahun";
 		default:
 			return "7 Hari";
 	}

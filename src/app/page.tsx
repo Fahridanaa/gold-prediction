@@ -1,34 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { PriceCard } from "@/components/PriceCard";
-import { PriceChart } from "@/components/PriceChart";
 import { PriceHistoryTable } from "@/components/PriceHistoryTable";
-import { useGoldStats } from "@/hooks/useGoldStats";
-import { TimeRange } from "@/types/gold";
+import { GoldPriceChart } from "@/components/GoldPriceChart";
+import { useGoldStore } from "@/hooks/useGoldStore";
 
-export default function Home() {
-	const {
-		buyPrice,
-		sellPrice,
-		dailyHigh,
-		dailyLow,
-		loading,
-	} = useGoldStats();
-
-	const [selectedRange, setSelectedRange] = useState<TimeRange>("today");
-
-	const timeRanges: { value: TimeRange; label: string }[] = [
-		{ value: "today", label: "Today" },
-		{ value: "1w", label: "1 Week" },
-		{ value: "1m", label: "1 Month" },
-		{ value: "3m", label: "3 Month" },
-		{ value: "6m", label: "6 Month" },
-		{ value: "ytd", label: "YTD" },
-		{ value: "1y", label: "1 Year" },
-		{ value: "5y", label: "5 Year" },
-		{ value: "all", label: "All Time" },
-	] as const;
+export default function Dashboard() {
+	const { stats, isMarketOpen, loading } = useGoldStore();
+	const { buyPrice, sellPrice, dailyHigh, dailyLow } = stats;
 
 	return (
 		<main className="p-4 mx-auto">
@@ -40,16 +20,12 @@ export default function Home() {
 			</header>
 			<div className="flex flex-col lg:flex-row gap-4">
 				<section className="flex-1 min-w-0 rounded-lg">
-					<PriceChart
-						timeRanges={timeRanges}
-						selectedRange={selectedRange}
-						onRangeChange={setSelectedRange}
-					/>
+					<GoldPriceChart chartMode={"historical"} />
 				</section>
 				<aside className="grid grid-cols-2 lg:grid-cols-1 gap-4 lg:w-52">
 					<PriceCard
 						title="Buy Price"
-						price={buyPrice}
+						price={isMarketOpen ? buyPrice : 0}
 						subtitle={loading ? "Loading..." : undefined}
 					/>
 					<PriceCard

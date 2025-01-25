@@ -1,5 +1,6 @@
 "use client";
 
+import { useGoldData } from "@/hooks/useGoldData";
 import dynamic from "next/dynamic";
 
 const ClientLayout = dynamic(() => import("@/components/ClientLayout"), {
@@ -11,5 +12,6 @@ export default function ClientLayoutWrapper({
 }: {
 	children: React.ReactNode;
 }) {
+	useGoldData();
 	return <ClientLayout>{children}</ClientLayout>;
 }

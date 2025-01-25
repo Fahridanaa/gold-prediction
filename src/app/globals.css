@@ -36,6 +36,8 @@ body {
 		--sidebar-accent: 60 4.8% 95.9%;
 		--sidebar-accent-foreground: 24 9.8% 10%;
 		--sidebar-background: 0 0% 100%;
+		--prediction: 12 76% 61%; /* Using chart-1 - coral color */
+		--prediction-foreground: 0 0% 100%; /* Using light background - white color */
 	}
 
 	.dark {
@@ -65,6 +67,8 @@ body {
 		--chart-5: 340 75% 55%;
 		--sidebar-accent: 60 4.8% 95.9%;
 		--sidebar-accent-foreground: 24 9.8% 10%;
+		--prediction: 220 70% 50%; /* Using dark chart-1 - blue color */
+		--prediction-foreground: 0 0% 100%; /* Using light background - white color */
 	}
 }
 

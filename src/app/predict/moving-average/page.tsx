@@ -1,21 +1,15 @@
 "use client";
 
+import { GoldPriceChart } from "@/components/GoldPriceChart";
 import { InfoCard } from "@/components/InfoCard";
-import { PriceChart } from "@/components/PriceChart";
 import { Badge } from "@/components/ui/badge";
+import { useGoldStore } from "@/hooks/useGoldStore";
 import { getPredictionEndDate, getPredictionPeriodText } from "@/lib/utils";
-import { TimeRange } from "@/types/gold";
 import { Separator } from "@radix-ui/react-separator";
-import React, { useState } from "react";
+import React from "react";
 
 const MovingAveragePage: React.FC = () => {
-	const [selectedRange, setSelectedRange] = useState<TimeRange>("1w");
-	const timeRanges: { value: TimeRange; label: string }[] = [
-		{ value: "1w", label: "1 Week" },
-		{ value: "1m", label: "1 Month" },
-		{ value: "3m", label: "3 Month" },
-		{ value: "6m", label: "6 Month" },
-	] as const;
+	const { predictionFilters } = useGoldStore();
 
 	return (
 		<main className="p-4 mx-auto">
@@ -32,23 +26,26 @@ const MovingAveragePage: React.FC = () => {
 			<article className="flex flex-col gap-4">
 				<header className="flex flex-col gap-2">
 					<h2 className="text-xl font-semibold flex items-center gap-2">
-						Prediksi Laba
+						Prediksi Moving Average
 						<Badge
 							variant="outline"
 							className="text-xs font-normal"
 						>
-							{getPredictionPeriodText(selectedRange)} Kedepan
+							{getPredictionPeriodText(
+								predictionFilters.MovingAverage
+							)}{" "}
+							Kedepan
 						</Badge>
 					</h2>
 					<p className="text-sm text-muted-foreground">
-						Sampai {getPredictionEndDate(selectedRange)}
+						Sampai{" "}
+						{getPredictionEndDate(predictionFilters.MovingAverage)}
 					</p>
 				</header>
 				<section>
-					<PriceChart
-						timeRanges={timeRanges}
-						selectedRange={selectedRange}
-						onRangeChange={setSelectedRange}
+					<GoldPriceChart
+						chartMode="prediction"
+						predictionType="MovingAverage"
 					/>
 				</section>
 			</article>
