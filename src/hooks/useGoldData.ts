@@ -114,13 +114,11 @@ export function useGoldData() {
 		{
 			revalidateOnFocus: false,
 			onSuccess: (data) => {
-				console.log(predictionFilters.MovingAverage);
 				setPredictionData({
 					...predictionData,
 					MovingAverage: data.data,
 				});
 				setHistoricalFilter(predictionFilters.MovingAverage);
-				console.log(predictionData.MovingAverage);
 				setLoading(false);
 			},
 			onError: (err) => {

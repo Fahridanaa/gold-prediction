@@ -45,11 +45,11 @@ const formatTimestamp = (
 				hour12: false,
 			});
 		case "1w":
-			return date.toLocaleDateString([], {
+			return `${date.toLocaleDateString([], {
 				weekday: "short",
-				hour: "2-digit",
-				hour12: false,
-			});
+				month: "short",
+				day: "numeric",
+			})}`;
 		case "1m":
 			return date.toLocaleDateString([], {
 				month: "short",
@@ -94,8 +94,16 @@ const processChartData = (
 	}
 
 	if (type === "MovingAverage") {
+		const firstMADate = new Date(
+			predictions.MovingAverage[0]?.date
+		).getTime();
+
+		const filteredHistorical = historical.filter(
+			(d) => d.timestamp <= firstMADate
+		);
+
 		return [
-			...historical,
+			...filteredHistorical,
 			...predictions.MovingAverage.map((d) => ({
 				timestamp: new Date(d.date).getTime(),
 				price: d.price,
@@ -289,13 +297,15 @@ export const GoldPriceChart = ({
 									/>
 								)}
 
-							{chartMode === "historical" && (
+							{(chartMode === "historical" ||
+								predictionType === "MovingAverage") && (
 								<Area
 									type="monotone"
 									dataKey="price"
 									stroke="hsl(var(--primary))"
 									fill="url(#colorPrice)"
-									fillOpacity={0.1}
+									fillOpacity={0.3}
+									connectNulls
 								/>
 							)}
 
@@ -346,35 +356,6 @@ export const GoldPriceChart = ({
 
 							{chartMode === "prediction" &&
 								predictionType === "MovingAverage" && (
-									<Area
-										type="monotone"
-										dataKey="price"
-										data={chartData.filter(
-											(d) => !("isPredicted" in d)
-										)}
-										stroke="hsl(var(--primary))"
-										fill="url(#colorPrice)"
-										fillOpacity={0.3}
-										connectNulls
-									/>
-								)}
-
-							{chartMode === "prediction" &&
-								predictionType === "MovingAverage" && (
-									<Area
-										type="monotone"
-										dataKey="price"
-										data={chartData.filter(
-											(d) => "isPredicted" in d
-										)}
-										stroke="hsl(var(--chart-1))"
-										fill="url(#colorPrediction)"
-										fillOpacity={0.3}
-										connectNulls
-									/>
-								)}
-							{chartMode === "prediction" &&
-								predictionType === "MovingAverage" && (
 									<Line
 										type="monotone"
 										dataKey="sma"
@@ -382,6 +363,7 @@ export const GoldPriceChart = ({
 										strokeWidth={2}
 										dot={false}
 										strokeDasharray="5 5"
+										connectNulls
 									/>
 								)}
 						</ComposedChart>
